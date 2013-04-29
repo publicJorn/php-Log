@@ -10,7 +10,7 @@
  * Log::error($msg[, $context])
  * 
  * Do we have any logs? Request can be filtered by type/level:
- * Log::has(['info'|'warn'|'error'])
+ * Log::count(['info'|'warn'|'error'])
  * 
  * Get a raw array or output directly to screen. Can be filtered by type/level:
  * Log::retrieve()
@@ -78,17 +78,19 @@ class Log {
 	 * @param string $type
 	 * @return boolean
 	 */
-	public static function has($type = '') {
-		if ($type === '' && count(self::$logs) > 0) {
-			return true;
+	public static function count($type = '') {
+		$total = count(self::$logs);
+		if ($type === '' && $total > 0) {
+			return $total;
 		}
-		
+
+		$i = 0;
 		foreach (self::$logs as $log) {
 			if ($log['severity'] === $type) {
-				return true;
+				$i++;
 			}
 		}
-		return false;
+		return $i;
 	}
 	
 	/**
