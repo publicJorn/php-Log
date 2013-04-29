@@ -1,7 +1,7 @@
 <?php
 /**
  * Generic static logging class with 3 levels of logging.
- * - The file and line number of where the log was thrown are automatically added to the log item if it is severe (warn or error)
+ * - The file and line number of where the log was thrown are automatically added to the log item
  * - Optionally you may pass a "context", which can be any string and is supposed to give a clue to where the sollution can be found
  * 
  * Log it:
@@ -25,12 +25,10 @@ class Log {
 	/**
 	 * Normal log
 	 * @param type $msg
+	 * @param string [optional] $ctx Additional context info
 	 */
-	public static function info($msg) {
-		self::$logs[] = array(
-			'severity' => 'info',
-			'message' => $msg
-		);
+	public static function info($msg, $ctx = '') {
+		self::addLog('info', $msg, $ctx);
 	}
 	
 	/**
@@ -39,7 +37,7 @@ class Log {
 	 * @param string [optional] $ctx Context where user can fix this issue
 	 */
 	public static function warn($msg, $ctx = '') {
-		self::severe('warn', $msg, $ctx);
+		self::addLog('warn', $msg, $ctx);
 	}
 	
 	/**
@@ -48,7 +46,7 @@ class Log {
 	 * @param string [optional] $ctx Context where user can fix this issue
 	 */
 	public static function error($msg, $ctx = '') {
-		self::severe('error', $msg, $ctx);
+		self::addLog('error', $msg, $ctx);
 	}
 	
 	/**
@@ -57,7 +55,7 @@ class Log {
 	 * @param string $msg
 	 * @param string $ctx
 	 */
-	private static function severe($severity, $msg, $ctx) {
+	private static function addLog($severity, $msg, $ctx) {
 		$debug = debug_backtrace(); // Gives info from where the log is thrown
 		$i = count(self::$logs);
 		
