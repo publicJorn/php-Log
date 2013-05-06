@@ -25,7 +25,7 @@ class Log {
 	/**
 	 * Normal log
 	 * @param type $msg
-	 * @param string [optional] $ctx Additional context info
+	 * @param mixed [optional] $ctx Additional context info (see addLog for details)
 	 */
 	public static function info($msg, $ctx = '') {
 		self::addLog('info', $msg, $ctx);
@@ -34,7 +34,7 @@ class Log {
 	/**
 	 * Log a warning
 	 * @param string $msg
-	 * @param string [optional] $ctx Context where user can fix this issue
+	 * @param mixed [optional] $ctx Context where user can fix this issue (see addLog for details)
 	 */
 	public static function warn($msg, $ctx = '') {
 		self::addLog('warn', $msg, $ctx);
@@ -43,7 +43,7 @@ class Log {
 	/**
 	 * Log an error
 	 * @param string $msg
-	 * @param string [optional] $ctx Context where user can fix this issue
+	 * @param mixed [optional] $ctx Context where user can fix this issue (see addLog for details)
 	 */
 	public static function error($msg, $ctx = '') {
 		self::addLog('error', $msg, $ctx);
@@ -53,22 +53,29 @@ class Log {
 	 * Severe logs get more information so they can be debugged.
 	 * @param string $severity
 	 * @param string $msg
-	 * @param string $ctx
+	 * @param mixed $ctx Context of log item. If a number, the debug_backtrace will go 
+	 *                   further back in history. If a string, it will be added as such
+	 *                   to the log array
 	 */
 	private static function addLog($severity, $msg, $ctx) {
 		$debug = debug_backtrace(); // Gives info from where the log is thrown
+		$history = is_int($ctx)? 1 + $ctx : 1; // 1 displays info caller of warn() and/or error()
 		$i = count(self::$logs);
 		
 		self::$logs[$i] = array(
 			'severity' => $severity,
 			'message' => $msg,
-			'in_file' => $debug[1]['file'], // [1] displays info caller of warn() and/or error()
-			'at_line' => $debug[1]['line']
+			'in_file' => $debug[$history]['file'],
+			'at_line' => $debug[$history]['line']
 		);
 		
-		// Additionally let the user know where it can be fixed (optionally passed
-		// when the cause of the error is somewhere else from where it's thrown)
-		if ($ctx) {
+		// Set context if not specified -uses classname if available, defaults to filename
+		if (!$ctx && isset($debug[0]['class'])) {
+			$ctx = $debug[0]['class'];
+		}
+		
+		// If context is a string, we'll append it to the log
+		if ($ctx && is_string($ctx)) {
 			self::$logs[$i]['context'] = $ctx;
 		}
 	}
