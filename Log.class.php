@@ -70,7 +70,7 @@ class Log {
 		);
 		
 		// Set context if not specified -uses classname if available, defaults to filename
-		if (!$ctx && isset($debug[0]['class'])) {
+		if ((!$ctx || is_int($ctx)) && isset($debug[0]['class'])) {
 			$ctx = $debug[0]['class'];
 		}
 		
